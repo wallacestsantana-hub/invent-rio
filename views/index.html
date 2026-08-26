@@ -1,1 +1,1002 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventário Diocesano - Cadastro de Bem</title>
+  <style>
+    /* Definição de Variáveis de Cores (Tema Claro Padrão) */
+    :root {
+      --bg-primary: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #333333;
+      --text-title: #1a365d;
+      --text-subtitle: #4a5568;
+      --text-label: #4a5568;
+      --border-color: #cbd5e0;
+      --accent-color: #2b6cb0;
+      --accent-hover: #2c5282;
+      --input-bg: #ffffff;
+      --box-bg: #f7fafc;
+    }
 
+    /* Variáveis para o Modo Noturno / Dark */
+    [data-theme="dark"] {
+      --bg-primary: #121212;
+      --bg-card: #1e1e1e;
+      --text-main: #e0e0e0;
+      --text-title: #63b3ed;
+      --text-subtitle: #a0aec0;
+      --text-label: #cbd5e0;
+      --border-color: #333333;
+      --accent-color: #3182ce;
+      --accent-hover: #4299e1;
+      --input-bg: #2d3748;
+      --box-bg: #2d3748;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    }
+
+    body { 
+      background-color: var(--bg-primary); 
+      margin: 0; 
+      padding: 15px; 
+      color: var(--text-main); 
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: flex-end;
+      max-width: 900px;
+      margin: 0 auto 10px auto;
+    }
+
+    /* Estilização do Botão de Alternância de Tema */
+    .theme-toggle-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle-btn:hover {
+      background-color: var(--border-color);
+    }
+
+    .container { 
+      max-width: 900px; 
+      margin: 0 auto; 
+      background: var(--bg-card); 
+      padding: 20px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+      transition: background-color 0.3s ease;
+    }
+
+    h1 { 
+      text-align: center; 
+      color: var(--text-title); 
+      font-size: 1.5rem; 
+      margin-bottom: 5px; 
+    }
+
+    h2 { 
+      text-align: center; 
+      color: var(--text-subtitle); 
+      font-size: 1rem; 
+      font-weight: normal; 
+      margin-top: 0; 
+      margin-bottom: 20px; 
+    }
+    
+    fieldset { 
+      border: 1px solid var(--border-color); 
+      border-radius: 6px; 
+      padding: 15px; 
+      margin-bottom: 20px; 
+    }
+
+    legend { 
+      font-weight: bold; 
+      color: var(--accent-color); 
+      padding: 0 8px; 
+    }
+    
+    .form-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+      gap: 12px; 
+    }
+
+    .form-group { 
+      display: flex; 
+      flex-direction: column; 
+    }
+
+    .form-group.full-width { 
+      grid-column: 1 / -1; 
+    }
+    
+    label { 
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      margin-bottom: 4px; 
+      color: var(--text-label); 
+    }
+
+    input, select, textarea { 
+      padding: 8px 10px; 
+      border: 1px solid var(--border-color); 
+      border-radius: 4px; 
+      font-size: 0.9rem; 
+      background-color: var(--input-bg);
+      color: var(--text-main);
+    }
+
+    input:focus, select:focus, textarea:focus { 
+      border-color: var(--accent-color); 
+      outline: none; 
+    }
+    
+    .foto-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+      gap: 10px; 
+    }
+
+    .foto-box { 
+      border: 2px dashed var(--border-color); 
+      padding: 10px; 
+      text-align: center; 
+      border-radius: 6px; 
+      background: var(--box-bg); 
+    }
+
+    .foto-box label { 
+      cursor: pointer; 
+      color: var(--accent-color); 
+      display: block; 
+      font-weight: bold; 
+    }
+
+    .foto-box input[type="file"] { 
+      display: none; 
+    }
+
+    .preview { 
+      width: 100%; 
+      height: 90px; 
+      object-fit: contain; 
+      margin-top: 5px; 
+      display: none; 
+    }
+
+    .btn-submit { 
+      width: 100%; 
+      background: var(--accent-color); 
+      color: white; 
+      padding: 12px; 
+      border: none; 
+      border-radius: 6px; 
+      font-size: 1rem; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: background 0.2s; 
+    }
+
+    .btn-submit:hover { 
+      background: var(--accent-hover); 
+    }
+
+    #msg { 
+      text-align: center; 
+      font-weight: bold; 
+      margin-top: 15px; 
+    }
+  </style>
+</head>
+<body>
+
+<div class="header-bar">
+  <button id="themeToggle" class="theme-toggle-btn">
+    <span id="themeIcon">🌙</span>
+    <span id="themeText">Modo Escuro</span>
+  </button>
+</div>
+
+<div class="container">
+  <h1>Diocese de Barra do Piraí — Volta Redonda</h1>
+  <h2>Sistema de Cadastro e Inventário de Bens Patrimoniais</h2>
+
+  <form id="formInventario" enctype="multipart/form-data">
+
+    <!-- 1. LOCALIZAÇÃO -->
+    <fieldset>
+      <legend>1. Localização</legend>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="num_tombo">Nº da Ficha (Sequencial)</label>
+          <input type="text" id="num_tombo" name="num_tombo" placeholder="Automático ou digite" value="0001">
+        </div>
+
+        <div class="form-group">
+          <label for="vicariato">Vicariato</label>
+          <select id="vicariato" name="vicariato" required onchange="carregarParoquias()">
+            <option value="">-- Selecione o Vicariato --</option>
+            <option value="V1 - Vicariato de Barra do Piraí">V1 - Vicariato de Barra do Piraí</option>
+            <option value="V2 - Vicariato de Barra Mansa">V2 - Vicariato de Barra Mansa</option>
+            <option value="V3 - Vicariato de Resende">V3 - Vicariato de Resende</option>
+            <option value="V4 - Vicariato de Volta Redonda">V4 - Vicariato de Volta Redonda</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="paroquia">Paróquia</label>
+          <select id="paroquia" name="paroquia" required onchange="carregarComunidades()">
+            <option value="">-- Selecione primeiro o Vicariato --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="comunidade">Comunidade / Capela</label>
+          <select id="comunidade" name="comunidade" required>
+            <option value="">-- Selecione primeiro a Paróquia --</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" name="endereco" placeholder="Rua, número e bairro">
+        </div>
+        <div class="form-group">
+          <label for="predio">Prédio</label>
+          <input type="text" id="predio" name="predio" placeholder="Ex: Igreja / Capela / Centro Comunitário">
+        </div>
+        <div class="form-group">
+          <label for="local_acervo">Local do Acervo</label>
+          <input type="text" id="local_acervo" name="local_acervo" placeholder="Ex: Nave Central / Presbitério / Sacristia">
+        </div>
+        <div class="form-group">
+          <label for="acondicionamento">Acondicionamento</label>
+          <input type="text" id="acondicionamento" name="acondicionamento" placeholder="Ex: Retábulo, Nicho, Exposta em peanha, Armário">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 2. IDENTIFICAÇÃO DO BEM -->
+<fieldset>
+  <legend>2. Identificação do Bem</legend>
+  <div class="form-grid">
+    <div class="form-group full-width">
+      <label for="titulo">Título / Denominação *</label>
+      <input type="text" id="titulo" name="titulo" required placeholder="Ex: Imagem de Nossa Senhora das Graças">
+    </div>
+
+    <!-- Categoria CDC -->
+    <div class="form-group">
+      <label for="cdc_categoria">Categoria CDC *</label>
+      <select id="cdc_categoria" name="cdc_categoria">
+        <option value="" disabled selected>Selecione a Categoria</option>
+        <option value="imaginaria">Imaginária e afins</option>
+        <option value="mobiliario">Mobiliário sacro</option>
+        <option value="iluminacao">Objetos ligados à iluminação</option>
+        <option value="eucaristia">Objetos ligados à Eucaristia</option>
+        <option value="purificacao">Objetos ligados à purificação</option>
+        <option value="procissao">Objetos ligados à procissão</option>
+        <option value="devocional">Objetos ligados ao devocional</option>
+        <option value="sacramentos">Objetos ligados aos sacramentos</option>
+        <option value="texteis">Têxteis</option>
+        <option value="musica">Instrumentos de música e som</option>
+      </select>
+    </div>
+
+    <!-- Subitem CDC -->
+    <div class="form-group">
+      <label for="cdc_subitem">Tipo / Código *</label>
+      <select id="cdc_subitem" name="codigo_cdc" disabled required>
+        <option value="" disabled selected>Selecione primeiro a Categoria</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="suporte">Suporte / Material</label>
+      <input type="text" id="suporte" name="suporte" placeholder="Ex: Madeira entalhada, Gesso, Metal, Tela">
+    </div>
+    <div class="form-group">
+      <label for="epoca">Época</label>
+      <input type="text" id="epoca" name="epoca" placeholder="Ex: Século XX / Década de 1950">
+    </div>
+    <div class="form-group">
+      <label for="origem">Origem</label>
+      <input type="text" id="origem" name="origem" placeholder="Ex: Brasil / Itália">
+    </div>
+    <div class="form-group">
+      <label for="autoria_oficina">Autoria / Oficina</label>
+      <input type="text" id="autoria_oficina" name="autoria_oficina" placeholder="Ex: Desconhecido / Anônimo">
+    </div>
+    <div class="form-group">
+      <label for="assinatura">Assinatura</label>
+      <select id="assinatura" name="assinatura">
+        <option value="Não possui">Não possui</option>
+        <option value="Possui">Possui</option>
+        <option value="Ilegível">Ilegível</option>
+      </select>
+    </div>
+    <div class="form-group full-width">
+      <label for="instituicao">Instituição de Pertença</label>
+      <input type="text" id="instituicao" name="instituicao" value="Diocese de Barra do Piraí - Volta Redonda">
+    </div>
+  </div>
+</fieldset>
+
+<!-- 3. CONSERVAÇÃO E SEGURANÇA -->
+<fieldset>
+  <legend>3. Estado de Conservação e Segurança</legend>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="seguranca">Estado de Segurança</label>
+      <select id="seguranca" name="seguranca">
+        <option value="" disabled selected>Selecione o Estado</option>
+        <option value="OTIMO">🟢 ÓTIMO</option>
+        <option value="BOM">🔵 BOM</option>
+        <option value="RUIM">🔴 RUIM</option>
+      </select>
+    </div>
+    <div class="form-group full-width">
+      <label for="seguranca_obs" id="label_seguranca_obs">Observações de Segurança</label>
+      <input type="text" id="seguranca_obs" name="seguranca_obs" placeholder="Ex: Bem fixado no retábulo / Tranca no nicho">
+    </div>
+    <div class="form-group">
+      <label for="conservacao">Estado de Conservação</label>
+      <select id="conservacao" name="conservacao">
+        <option value="" disabled selected>Selecione o Estado</option>
+        <option value="OTIMO">🟢 ÓTIMO</option>
+        <option value="BOM">🔵 BOM</option>
+        <option value="RUIM">🔴 RUIM</option>
+      </select>
+    </div>
+    <div class="form-group full-width">
+      <label for="conservacao_obs" id="label_conservacao_obs">Observações de Conservação</label>
+      <input type="text" id="conservacao_obs" name="conservacao_obs" placeholder="Ex: Pequeno descascado na policromia base">
+    </div>
+  </div>
+</fieldset>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    // 1. Mapeamento dos Dados da CDC
+    const cdcDados = {
+      imaginaria: [
+        { code: 'Img', label: 'Img: Imaginária' },
+        { code: 'GEs', label: 'GEs: Grupo escultórico' },
+        { code: 'Psp', label: 'Psp: Presépio' },
+        { code: 'Qdr', label: 'Qdr: Quadros, telas' },
+        { code: 'Pnl', label: 'Pnl: Painel' },
+        { code: 'Ftg', label: 'Ftg: Fotografia' },
+        { code: 'Rtb', label: 'Rtb: Retábulo' },
+        { code: 'Dpt', label: 'Dpt: Díptico' },
+        { code: 'Tpd', label: 'Tpd: Tríptico' },
+        { code: 'Icn', label: 'Icn: Ícone' },
+        { code: 'Crz', label: 'Crz: Cruz' },
+        { code: 'Crx', label: 'Crx: Crucifixo' }
+      ],
+      mobiliario: [
+        { code: 'Alt', label: 'Alt: Mesa de altar' },
+        { code: 'MCm', label: 'MCm: Mesa de Comunhão' },
+        { code: 'PdA', label: "PdA: Pedra d'ara" },
+        { code: 'Grd', label: 'Grd: Gradil' },
+        { code: 'Scr', label: 'Scr: Sacrário' },
+        { code: 'Psc', label: 'Psc: Porta do sacrário' },
+        { code: 'QdM', label: 'QdM: Quadro de missas, sacra' },
+        { code: 'Pnh', label: 'Pnh: Peanha' },
+        { code: 'Ppt', label: 'Ppt: Púlpito' },
+        { code: 'Trb', label: 'Trb: Tribuna' },
+        { code: 'Amb', label: 'Amb: Ambão, Mesa da palavra' },
+        { code: 'PBt', label: 'PBt: Pia batismal' },
+        { code: 'Crz', label: 'Crz: Cruzeiro' },
+        { code: 'Mdr', label: 'Mdr: Moldura' },
+        { code: 'Orn', label: 'Orn: Ornamento' },
+        { code: 'Azl', label: 'Azl: Azulejo' },
+        { code: 'PFr', label: 'PFr: Pintura em forro' },
+        { code: 'PAB', label: 'PAB: Pia de água benta' },
+        { code: 'TPB', label: 'TPB: Tampa de pia batismal' },
+        { code: 'Cdc', label: 'Cdc: Credência' },
+        { code: 'Das', label: 'Das: Sedia' },
+        { code: 'Cdr', label: 'Cdr: Cadeira, banqueta' },
+        { code: 'Gnf', label: 'Gnf: Genuflexório' },
+        { code: 'Fdt', label: 'Faldistório' },
+        { code: 'Est', label: 'Est: Estante' },
+        { code: 'Gzf', label: 'Gzf: Gazofilácio, cofre de ofertas' },
+        { code: 'ASO', label: 'ASO: Armário dos santos óleos' },
+        { code: 'LvS', label: 'LvS: Lavabo integrado de sacristia' },
+        { code: 'Cfs', label: 'Cfs: Confessionário' },
+        { code: 'Bcr', label: 'Bcr: Banco de coro' },
+        { code: 'PVt', label: 'PVt: Para-vento' },
+        { code: 'Prt', label: 'Prt: Porta' },
+        { code: 'Vtl', label: 'Vtl: Vitral' },
+        { code: 'Jnl', label: 'Jnl: Janela' },
+        { code: 'Tbn', label: 'Tbn: Tribuna' },
+        { code: 'Plc', label: 'Plc: Placa comemorativa' },
+        { code: 'Mob', label: 'Mob: Mobílias diversas' }
+      ],
+      iluminacao: [
+        { code: 'Ctç', label: 'Ctç: Castiçal' },
+        { code: 'Lst', label: 'Lst: Lustre' },
+        { code: 'Acd', label: 'Acd: Acendedor / Apagador' }
+      ],
+      eucaristia: [
+        { code: 'Clc', label: 'Clc: Cálice' },
+        { code: 'Cbr', label: 'Cbr: Cibório, âmbula' },
+        { code: 'Tca', label: 'Tca: Tecas e caixas de hóstias' },
+        { code: 'CxL', label: 'CxL: Caixa de lúnula ou luneta ou crescente eucarístico' },
+        { code: 'Ptn', label: 'Ptn: Patena' },
+        { code: 'Glt', label: 'Glt: Galhetas' },
+        { code: 'PGI', label: 'PGI: Porta galhetas' },
+        { code: 'Pnç', label: 'Pnç: Pinça de comunhão' },
+        { code: 'Clh', label: 'Clh: Colher de cálice ou de naveta' },
+        { code: 'Trn', label: 'Trn: Trono eucarístico' },
+        { code: 'Ost', label: 'Ost: Ostensório' },
+        { code: 'Lnt', label: 'Lnt: Luneta' },
+        { code: 'Urn', label: 'Urn: Urna do santíssimo' },
+        { code: 'Bld', label: 'Bld: Baldaquino' },
+        { code: 'Chv', label: 'Chv: Chave' }
+      ],
+      purificacao: [
+        { code: 'Prf', label: 'Prf: Purificação' },
+        { code: 'Lvb', label: 'Lvb: Jarra avulsa' },
+        { code: 'Bca', label: 'Bca: Bacia avulsa' },
+        { code: 'Cld', label: 'Cld: Caldeira' },
+        { code: 'Asp', label: 'Asp: Asperges' }
+      ],
+      procissao: [
+        { code: 'Nvt', label: 'Nvt: Naveta' },
+        { code: 'Trb', label: 'Trb: Turíbulo' },
+        { code: 'Tnz', label: 'Tnz: Tenaz' },
+        { code: 'EtA', label: 'EtA: Estante de altar' },
+        { code: 'Crp', label: 'Crp: Cruz processional' },
+        { code: 'Ltn', label: 'Ltn: Lanterna' },
+        { code: 'Plo', label: 'Plo: Pálio' },
+        { code: 'Ubl', label: 'Ubl: Umbela' },
+        { code: 'Vrl', label: 'Vrl: Vara de pálio, varal de cortina, vara de estandarte' },
+        { code: 'And', label: 'And: Andor' }
+      ],
+      devocional: [
+        { code: 'Rlc', label: 'Rlc: Relicário' },
+        { code: 'Plm', label: 'Plm: Palmas' },
+        { code: 'Atr', label: 'Atr: Atributos de imaginárias (coroa, esplendor, cetros...)' },
+        { code: 'EVS', label: 'EVS: Estação da via sacra' },
+        { code: 'ExV', label: 'ExV: Ex-votos' },
+        { code: 'Ort', label: 'Ort: Oratório' },
+        { code: 'RsO', label: 'RsO: Rosa de ouro' },
+        { code: 'VsD', label: 'VsD: Vaso decorativo' }
+      ],
+      sacramentos: [
+        { code: 'Vso', label: 'Vso: Vasos dos santos óleos, ampolas' },
+        { code: 'ChB', label: 'ChB: Concha batismal' },
+        { code: 'Etj', label: 'Etj: Estojos diversos' },
+        { code: 'CpL', label: 'CpL: Capa de livros litúrgicos' }
+      ],
+      texteis: [
+        { code: 'Prm', label: 'Prm: Paramentos' },
+        { code: 'Alf', label: 'Alf: Alfaias' },
+        { code: 'Est', label: 'Est: Estandarte' },
+        { code: 'Grn', label: 'Grn: Guarnições diversas (de ambão, frontal de altar...)' },
+        { code: 'Tlh', label: 'Tlh: Toalhas de altar, credência' }
+      ],
+      musica: [
+        { code: 'Org', label: 'Org: Órgão' },
+        { code: 'Hrm', label: 'Hrm: Harmônio' },
+        { code: 'Snt', label: 'Snt: Sineta' },
+        { code: 'Sin', label: 'Sin: Sino' },
+        { code: 'Mtc', label: 'Mtc: Matraca' }
+      ]
+    };
+
+    // Elements
+    const categoriaSelect = document.getElementById('cdc_categoria');
+    const subitemSelect = document.getElementById('cdc_subitem');
+    const segurancaSelect = document.getElementById('seguranca');
+    const conservacaoSelect = document.getElementById('conservacao');
+
+    // 2. Lógica Dinâmica para Subitens CDC
+    if (categoriaSelect && subitemSelect) {
+      categoriaSelect.addEventListener('change', function() {
+        const categoria = this.value;
+
+        // Limpa opções anteriores
+        subitemSelect.innerHTML = '<option value="" disabled selected>Selecione o Tipo / Código</option>';
+
+        if (categoria && cdcDados[categoria]) {
+          subitemSelect.disabled = false;
+          subitemSelect.removeAttribute('disabled');
+
+          cdcDados[categoria].forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.code;
+            opt.textContent = item.label;
+            subitemSelect.appendChild(opt);
+          });
+        } else {
+          subitemSelect.disabled = true;
+        }
+      });
+    }
+
+    // 3. Lógica para tornar Observações Obrigatórias caso o estado seja "RUIM"
+    function validarObservacaoObrigatoria(selectId, obsInputId) {
+      const selectElem = document.getElementById(selectId);
+      const obsInput = document.getElementById(obsInputId);
+      const labelObs = document.getElementById('label_' + obsInputId);
+
+      if (!selectElem || !obsInput) return;
+
+      if (selectElem.value === 'RUIM') {
+        obsInput.required = true;
+        if (labelObs && !labelObs.textContent.includes('*')) {
+          labelObs.textContent += ' * (Obrigatório devido ao estado RUIM)';
+        }
+      } else {
+        obsInput.required = false;
+        if (labelObs) {
+          labelObs.textContent = labelObs.textContent.replace(' * (Obrigatório devido ao estado RUIM)', '');
+        }
+      }
+    }
+
+    if (segurancaSelect) {
+      segurancaSelect.addEventListener('change', () => validarObservacaoObrigatoria('seguranca', 'seguranca_obs'));
+    }
+
+    if (conservacaoSelect) {
+      conservacaoSelect.addEventListener('change', () => validarObservacaoObrigatoria('conservacao', 'conservacao_obs'));
+    }
+  });
+</script>
+
+    <!-- 4. PROTEÇÃO LEGAL -->
+    <fieldset>
+      <legend>4. Proteção Legal</legend>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="protecao_legal">Proteção Legal</label>
+          <select id="protecao_legal" name="protecao_legal">
+            <option value="Não possui">Não possui</option>
+            <option value="Possui">Possui</option>
+            <option value="Em Processo">Em Processo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="esfera">Esfera</label>
+          <select id="esfera" name="esfera">
+            <option value="-">-</option>
+            <option value="Municipal">Municipal</option>
+            <option value="Estadual">Estadual</option>
+            <option value="Federal">Federal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tipo_tombamento">Tipo de Tombamento</label>
+          <select id="tipo_tombamento" name="tipo_tombamento">
+            <option value="-">-</option>
+            <option value="Tombamento Individual">Tombamento Individual</option>
+            <option value="Tombamento em Conjunto">Tombamento em Conjunto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="num_tombo_legal">Nº do Tombo Legal</label>
+          <input type="text" id="num_tombo_legal" name="num_tombo_legal" placeholder="Ex: Processo nº 123/2020">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 5. DIMENSÕES E PESO -->
+    <fieldset>
+      <legend>5. Dimensões e Peso</legend>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="altura">Altura (cm)</label>
+          <input type="number" step="0.1" id="altura" name="altura">
+        </div>
+        <div class="form-group">
+          <label for="largura">Largura (cm)</label>
+          <input type="number" step="0.1" id="largura" name="largura">
+        </div>
+        <div class="form-group">
+          <label for="comprimento">Comprimento (cm)</label>
+          <input type="number" step="0.1" id="comprimento" name="comprimento">
+        </div>
+        <div class="form-group">
+          <label for="profundidade">Profundidade (cm)</label>
+          <input type="number" step="0.1" id="profundidade" name="profundidade">
+        </div>
+        <div class="form-group">
+          <label for="diametro">Diâmetro (cm)</label>
+          <input type="number" step="0.1" id="diametro" name="diametro">
+        </div>
+        <div class="form-group">
+          <label for="peso">Peso (kg)</label>
+          <input type="number" step="0.1" id="peso" name="peso">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 6. ANEXO FOTOGRÁFICO -->
+    <fieldset>
+      <legend>6. Fotografias Obrigatórias</legend>
+      <div class="foto-grid">
+        <div class="foto-box">
+          <label for="foto_frente">📷 Frente</label>
+          <input type="file" id="foto_frente" name="foto_frente" accept="image/*" capture="environment" onchange="previewImg(this, 'p_frente')">
+          <img id="p_frente" class="preview">
+        </div>
+        <div class="foto-box">
+          <label for="foto_verso">📷 Verso</label>
+          <input type="file" id="foto_verso" name="foto_verso" accept="image/*" capture="environment" onchange="previewImg(this, 'p_verso')">
+          <img id="p_verso" class="preview">
+        </div>
+        <div class="foto-box">
+          <label for="foto_esquerda">📷 Esq.</label>
+          <input type="file" id="foto_esquerda" name="foto_esquerda" accept="image/*" capture="environment" onchange="previewImg(this, 'p_esq')">
+          <img id="p_esq" class="preview">
+        </div>
+        <div class="foto-box">
+          <label for="foto_direita">📷 Dir.</label>
+          <input type="file" id="foto_direita" name="foto_direita" accept="image/*" capture="environment" onchange="previewImg(this, 'p_dir')">
+          <img id="p_dir" class="preview">
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- 7. RESPONSÁVEL PELO CADASTRO -->
+    <fieldset>
+      <legend>7. Responsável pelo Cadastro</legend>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="inventariante">Nome do Inventariante</label>
+          <input type="text" id="inventariante" name="inventariante" required placeholder="Seu nome completo">
+        </div>
+        <div class="form-group">
+          <label for="data_cadastro">Data do Cadastro</label>
+          <input type="text" id="data_cadastro" name="data_cadastro" readonly style="opacity: 0.8; font-weight:bold;">
+        </div>
+      </div>
+    </fieldset>
+
+    <button type="submit" class="btn-submit">Gravar e Salvar Cadastro</button>
+  </form>
+
+  <div id="msg"></div>
+</div>
+
+<script>
+  // Objeto de dados dos Vicariatos e Paróquias
+  const dadosDiocese = {
+    "V1 - Vicariato de Barra do Piraí": {
+      "01- Mitra Diocesana BP-VR – Sede": ["01- Mitra Diocesana BP-VR – Sede"],
+      "02- Paróquia Senhora Sant’Ana": [
+        "CE 01 – Catedral Sant’Ana", "CE 02 – São Sebastião", "CE 03 – Santo Antônio", 
+        "CE 04 – São Judas Tadeu", "CE 05 – Santo Antônio", "CE 06 – Nossa Senhora da Piedade", 
+        "CE 07 – São Judas Tadeu", "CE 08 – Nossa Senhora Aparecida", "CE 09 – Nossa Senhora da Glória", 
+        "CE 10 – Santa Edwiges", "CE 11 – Santa Bárbara", "SP 12 – Secretaria Paroquial", 
+        "CP 13 – Casa Paroquial", "CS 14 – Centro Social (Pastoral)"
+      ],
+      "03- Paróquia São Benedito": [
+        "CE 01 – São Benedito", "CE 02 – Bom Jesus", "CE 03 – Menino Jesus de Praga", 
+        "CE 04 – Nossa Senhora Aparecida", "CE 05 – Nossa Senhora Aparecida", "CE 06 – Nossa Senhora de Fátima", 
+        "CE 07 – Nossa Senhora de Fátima", "CE 08 – Nossa Senhora do Rosário", 
+        "CE 09 – Sagrado Coração de Jesus e Imaculado Coração de Maria", "CE 10 – Santa Bárbara", 
+        "CE 11 – Santo Cristo dos Milagres", "CE 12 – São Francisco de Assis", "CE 13 – São João Batista", 
+        "CE 14 – São José", "SP 15 – Secretaria Paroquial", "CP 16 – Casa Paroquial"
+      ],
+      "04- Paróquia Santa Teresinha do Menino Jesus": [
+        "CE 01 – Santa Teresinha do Menino Jesus", "CE 02 – Nossa Senhora das Graças", 
+        "CE 03 – Nossa Senhora do Perpétuo Socorro e São Luíz Gonzaga", "CE 04 – São Sebastião", 
+        "CE 05 – Nossa Senhora Aparecida e São Joaquim", "CE 06 – Santa Rita", 
+        "SP 07 – Secretaria Paroquial", "CP 08 – Casa Paroquial"
+      ],
+      "05- Paróquia Santa Teresinha – Santanésia": [
+        "CE 01 – Santa Teresinha", "CE 02 – Nossa Senhora Aparecida", "CE 03 – Nossa Senhora de Fátima", 
+        "CE 04 – Senhora Sant’Ana", "CE 05 – São Cristóvão", "CE 06 – São Francisco de Assis", 
+        "CE 07 – São Pedro", "SP 08 – Secretaria Paroquial", "CP 09 – Casa Paroquial"
+      ],
+      "06- Paróquia Nossa Senhora das Dores – Dorândia": [
+        "CE 01 – Nossa Senhora das Dores", "CE 02 – São Benedito", "CE 03 – Nossa Senhora da Conceição", 
+        "CE 04 – São José", "CE 05 – São José do Turvo", "CE 06 – Nossa Senhora do Amparo", 
+        "SP 07 – Secretaria Paroquial", "CP 08 – Casa Paroquial"
+      ],
+      "07- Paróquia Senhora Sant’Ana – Piraí": [
+        "CE 01 – Senhora Sant’Ana", "CE 02 – Nossa Senhora das Graças", "CE 03 – Santa Cruz", 
+        "CE 04 – Nossa Senhora Aparecida", "CE 05 – Imaculada Conceição", "CE 06 – São Sebastião", 
+        "CE 07 – São José", "CE 08 – Santo Antônio", "CE 09 – Santa Tereza", "CE 10 – São Benedito", 
+        "CE 11 – São José Operário", "CE 12 – Santo Antônio", "SP 13 – Secretaria Paroquial", 
+        "CP 14 – Casa Paroquial", "CS 15 – Centro Social (Pastoral)"
+      ],
+      "08- Paróquia Santa Cruz – Mendes": [
+        "CE 01 – Santa Cruz", "CE 02 – Nossa Senhora das Graças e São Patrício", "CE 03 – Santa Rita", 
+        "CE 04 – Santo Antônio", "CE 05 – Santo Cristo dos Milagres", "CE 06 – Santo Cristo", 
+        "CE 07 – São Jorge", "CE 08 – São Sebastião", "CE 09 – Nossa Senhora Aparecida", 
+        "CE 10 – Nossa Senhora das Candeias", "CE 11 – São João Batista", "CE 12 – Nossa Senhora das Graças", 
+        "CE 13 – Santa Rosa", "CE 14 – Nossa Senhora da Conceição", "CE 15 – Santa Clara", 
+        "CE 16 – São Cristóvão", "SP 17 – Secretaria Paroquial", "CP 18 – Casa Paroquial"
+      ],
+      "09- Paróquia São João Batista - Eng. Paulo de Frontin": [
+        "CE 01 – São João Batista", "CE 02 – Sagrada Família", "CE 03 – Sant’Ana", "CE 04 – Santa Cruz", 
+        "CE 05 – Santo Antônio", "CE 06 – São Francisco de Assis", "CE 07 – São José", 
+        "CE 08 – São Sebastião", "CE 09 – Santo Antônio de Sant’Ana Galvão", "CE 10 – Nossa Senhora da Conceição", 
+        "CE 11 – Menino Jesus de Praga", "SP 12 – Secretaria Paroquial", "CP 13 – Casa Paroquial"
+      ],
+      "10- Paróquia Nossa Senhora da Conceição - Sacra Família": [
+        "CE 01 – Nossa Senhora da Conceição", "CE 02 – Nossa Senhora do Carmo", "CE 03 – Nossa Senhora de Lourdes", 
+        "CE 04 – Nossa Senhora Aparecida", "CE 05 – São José", "CE 06 – São Jorge", 
+        "SP 07 – Secretaria Paroquial", "CP 08 – Casa Paroquial"
+      ]
+    },
+    "V2 - Vicariato de Barra Mansa": {
+      "11- Paróquia Santa Cruz e Nossa Senhora de Fátima": [
+        "CE 01 - Santa Cruz", "CE 02 - Divino Espírito Santo", "CE 03 - Nossa Senhora Aparecida", 
+        "CE 04 - Nossa Senhora da Boa Morte", "CE 05 - Nossa Senhora de Lourdes", "CE 06 - Santa Luzia – Vila Nova", 
+        "CE 07 - Santa Luzia - Vista Alegre", "CE 08 - Santa Rita de Cássia", "CE 09 - São Geraldo", 
+        "CE 10 - São José", "CE 11 - São Camilo de Léllis", "CP 12 – Casa Paroquial", 
+        "SP 13 – Secretaria Paroquial", "CE 15 - Capela Nossa Senhora Aparecida"
+      ],
+      "12- Paróquia Santo Antônio": [
+        "CE 01 - Santo Antônio Matriz", "CE 02 - Apóstolo Paulo", "CE 03 - Nossa Senhora Perpétuo Socorro", 
+        "CE 04 - São José Operário", "CE 05 - São Vicente de Paulo", "CE 06 - Nossa Senhora do Carmo", 
+        "CE 07 - Sagrado Coração de Jesus", "CE 08 - Santa Clara de Assis", "CE 09 - São Francisco de Assis", 
+        "CE 10 - Divino Espírito Santo", "CE 11 - Santo Antônio – Colônia", "CE 12 – São João Batista", 
+        "CE 13 – São Lucas", "CE 14 – Bom Pastor", "CE 15 - Nossa Senhora Aparecida", 
+        "CE 16 – Nossa Senhora das Dores", "CE 17 – Santa Rita de Cássia", "CP 18 – Casa Paroquial", 
+        "SP 19 – Secretaria Paroquial", "CS 20 – Centro Social (pastoral)"
+      ],
+      "13- Paróquia Sagrado Coração de Jesus": [
+        "CE 01 – Sagrado Coração de Jesus", "CE 02 – Nossa Senhora Aparecida", "CE 03 – Nossa Senhora da Glória", 
+        "CE 04 – Nossa Senhora de Fátima", "CE 05 – Sant’Ana", "CE 06 – Santa Helena", 
+        "CE 07 – Santa Isabel", "CE 08 – Santa Rita de Cássia", "CE 09 – Santos Inocentes", 
+        "CE 10 – São Francisco de Assis", "CE 11 – Santa Teresinha do Menino Jesus", "CE 12 – Santa Rosa de Lima", 
+        "CE 13 – São José", "CE 14 – Nossa Senhora das Graças", "SP 15 – Secretaria Paroquial", "CP 16 – Casa Paroquial"
+      ],
+      "14- Paróquia São Sebastião": [
+        "CE 01 – São Sebastião", "CE 02 – Cristo Libertador", "CE 03 – Sagrada Família", "CE 04 – Santa Cecília", 
+        "CE 05 – Santa Cruz e Santo Expedito", "CE 06 – Nossa Senhora Aparecida", "CE 07 – Cristo Rei", 
+        "CE 08 – Nossa Senhora de Fátima", "CE 09 – São Judas Tadeu", "CE 10 – Santa Teresinha", 
+        "CE 11 – São João Evangelista", "CE 12 – São Cristóvão", "CE 13 – São Francisco de Assis", 
+        "CE 14 – São Luís Gonzaga", "CE 15 – São Mateus", "CE 16 – Nossa Senhora da Conceição", 
+        "CE 17 – Santa Clara", "CE 18 – São Pedro", "CE 19 – Santo Arnaldo Janssen", "CE 20 – Apóstolo Paulo", 
+        "CE 21 – Bom Jesus", "CE 22 – Maria de Nazaré", "CE 23 – Nossa Senhora das Graças", 
+        "CE 24 – São João Batista", "CE 25 – Nossa Senhora da Glória", "CE 26 – Nossa Senhora da Conceição", 
+        "CE 27 – São Genaro", "CE 28 – São Pedro", "CE 29 – São Vicente", "CE 30 – Santa Lúcia Filippini", 
+        "SP 31 – Secretaria Paroquial", "CP 32 – Casa Paroquial"
+      ],
+      "15- Paróquia Nossa Senhora da Piedade - Rio Claro": [
+        "CE 01 – Nossa Senhora da Piedade", "CE 02 – Nossa Senhora Aparecida", "CE 03 – Nossa Senhora da Imaculada Conceição", 
+        "CE 04 – Nossa Senhora de Fátima", "CE 05 – Santa Rita de Cássia", "CE 06 – Santa Rosa de Lima", 
+        "CE 07 – São João Marcos", "SP 08 – Secretaria Paroquial", "CP 09 – Casa Paroquial"
+      ],
+      "16- Paróquia Santo Antônio – Lídice": [
+        "CE 01 – Santo Antônio", "CE 02 – São Benedito", "CE 03 – Nossa Senhora Aparecida", 
+        "CE 04 – Sant’Ana", "CE 05 – Nossa Senhora Aparecida", "SP 06 – Secretaria Paroquial", "CP 07 – Casa Paroquial"
+      ],
+      "17- Paróquia Nossa Senhora do Rosário – Quatis": [
+        "CE 01 – Nossa Senhora do Rosário", "CE 02 – Nossa Senhora Aparecida", "CE 03 – Nossa Senhora Aparecida", 
+        "CE 04 – Imaculada Conceição", "CE 05 – Nossa Senhora das Dores", "CE 06 – Santa Cruz", 
+        "CE 07 – Sant’Ana", "CE 08 – São Benedito", "CE 09 – Sagrado Coração de Jesus", 
+        "CE 10 – Santo Antônio", "CE 11 – São Francisco de Assis", "CE 12 – São Sebastião", 
+        "CE 13 – São Joaquim", "CE 14 – Nossa Senhora de Fátima", "SP 15 – Secretaria Paroquial", "CP 16 – Casa Paroquial"
+      ],
+      "40- Paróquia Santa Clara – Barra Mansa": [
+        "CE 01 – Santa Clara", "CE 02 – São Cristóvão", "CE 03 – São Francisco de Assis", 
+        "CE 04 – São Luís Gonzaga", "CE 05 – São Pedro", "CE 06 – São Mateus", 
+        "CE 07 – Santa Lúcia", "CE 08 – Santo Arnaldo Janssen", "CE 09 – Nossa Senhora da Conceição", 
+        "SP 10 – Secretaria Paroquial", "CP 11 – Casa Paroquial"
+      ]
+    },
+    "V3 - Vicariato de Resende": {
+      "18- Paróquia Nossa Senhora da Conceição": [
+        "CE 01 – Nossa Senhora da Conceição", "CE 02 – Santíssima Trindade", "CE 03 – Santo Antônio", 
+        "CE 04 – São José Operário", "CE 05 – Nossa Senhora do Rosário", "CE 06 – São Benedito", 
+        "CE 07 – São Pedro", "CE 08 – Senhor dos Passos", "CE 09 – Nossa Senhora das Graças", 
+        "CE 10 – São Francisco de Assis", "SP 11 – Secretaria Paroquial", "CP 12 – Casa Paroquial"
+      ],
+      "19- Paróquia Nossa Senhora de Fátima": [
+        "CE 01 – Nossa Senhora de Fátima", "CE 02 – Nossa Senhora Aparecida", "CE 03 – Nossa Senhora Aparecida", 
+        "CE 04 – Nossa Senhora de Guadalupe", "CE 05 – Nossa Senhora do Carmo", "CE 06 – Santa Rita de Cássia", 
+        "CE 07 – São Francisco de Assis", "CE 08 – São José Operário", "CE 09 – Santo Antônio", 
+        "CE 10 – São Vicente Ferrer", "CE 11 – Santa Clara de Assis", "CE 12 – São Gabriel da Virgem Dolorosa", 
+        "CE 13 – Nossa Senhora Aparecida", "SP 14 – Secretaria Paroquial", "CP 15 – Casa Paroquial"
+      ],
+      "20- Paróquia Sagrada Família": [
+        "CE 01 – Nossa Senhora da Paz", "CE 02 – Sagrado Coração de Jesus", "CE 03 – Santa Isabel de Portugal", 
+        "CE 04 – São José Operário", "CE 05 – São Judas Tadeu", "CE 06 – São João Batista", 
+        "CE 07 – São Cristóvão (Salão)", "CE 08 – São Francisco de Assis", "CE 09 – São Benedito", 
+        "CE 10 – Nossa Senhora do Desterro", "CE 11 – São José-Sertãozinho", "CE 12 – Nossa Senhora Aparecida", 
+        "CE 13 – Terra Livre", "CE 14 – Santa Rita de Cássia (capela particular)", 
+        "CP 15 – Casa Paroquial", "SP 16 – Secretaria Paroquial"
+      ],
+      "21- Paróquia Santa Cecília": [
+        "CE 01 – Santa Cecília", "CE 02 – Cristo Ressuscitado", "CE 03 – Nossa Senhora Aparecida", 
+        "CE 04 – Santa Teresinha do Menino Jesus", "CE 05 – São Bento Abade", 
+        "SP 06 – Secretaria Paroquial", "CP 07 – Casa Paroquial"
+      ],
+      "22- Paróquia São Sebastião": [
+        "CE 01 – São Sebastião Matriz", "CE 02 – São Caetano", "CE 03 – Santo Antônio", 
+        "CE 04 – Nossa Senhora Aparecida", "CE 05 – Nossa Senhora Auxiliadora", "CE 06 – São Pedro e São Paulo", 
+        "SP 07 – Secretaria Pastoral", "CP 08 – Casa Paroquial"
+      ],
+      "23- Área Pastoral - Penedo/Serra de Mauá": [
+        "CE 01 – São Miguel Arcanjo", "CE 02 - Sagrada Família", "CE 03 – São Sebastião", 
+        "CE 04 – Sagrado Coração de Maria", "CE 05 – São Lourenço", "CE 06 – Nossa Senhora de Lourdes", 
+        "CE 07 – São Francisco de Assis", "CE 08 – São Judas Tadeu", "CE 09 – São Sebastião", 
+        "CE 10 – Nossa Senhora Aparecida", "CE 11 – São José", "CE 12 – São João Batista", 
+        "CE 13 – São Sebastião", "CE 14 – Nossa Senhora Aparecida", "SP 15 – Secretaria Paroquial", "CP 16 – Casa Paroquial"
+      ],
+      "24- Paróquia São José – Itatiaia": [
+        "CE 01 – São José", "CE 02 – São Miguel Arcanjo", "CE 03 – Santo Antônio", 
+        "SP 04 – Secretaria Paroquial", "CP 05 – Casa Paroquial"
+      ],
+      "25- Paróquia Cristo Ressuscitado – Itatiaia": [
+        "CE 01 – Cristo Ressuscitado", "CE 02 – Bom Pastor", "CE 03 – Bom Jesus", 
+        "CE 04 – Nossa Senhora Aparecida", "CE 05 – São Benedito", "CE 06 – São Francisco e Beata Nhá Chica", 
+        "SP 07 – Secretaria Paroquial", "CP 08 – Casa Paroquial"
+      ],
+      "26- Paróquia Nossa Senhora das Dores - Porto Real": [
+        "CE 01 – Nossa Senhora das Dores", "CE 02 – Nossa Senhora Aparecida", "CE 03 – São Francisco de Assis", 
+        "CE 04 - Santo Antônio", "CE 05 – Santa Luzia", "CE 06 – Nossa Senhora Aparecida", 
+        "CE 07 – Nossa Senhora de Fátima", "CE 08 – São José Operário", "CE 09 – São Sebastião", 
+        "CE 10 – Santo Antônio de Santana Galvão", "CE 11 – Santa Rosa de Lima", "CE 12 – Santa Rita de Cássia", 
+        "CE 13 – São Pedro", "SP 14 – Secretaria Paroquial", "CP 15 – Casa Paroquial"
+      ],
+      "27- Paróquia Santuário Coração Eucarístico de Jesus": [
+        "S 01 – Santuário Coração Eucarístico de Jesus", "CE 02 – Nossa Senhora dos Remédios", 
+        "CE 03 – São João Batista", "CE 04 – São Vicente de Paulo", "CP 05 – Casa Paroquial", "SP 06 – Secretaria Paroquial"
+      ]
+    },
+    "V4 - Vicariato de Volta Redonda": {
+      "28- Paróquia Senhor Bom Jesus": [
+        "CE 01 – Senhor Bom Jesus", "CE 02 – Imaculado Coração de Maria", "CE 03 – Sagrado Coração de Jesus", 
+        "CE 04 – Sagrada Família", "CE 05 – São Miguel Arcanjo e Santa Luzia", "CE 06 – Divino Espírito Santo", 
+        "CE 07 – São Bento", "SP 08 – Secretaria Paroquial", "CP 09 – Casa Paroquial"
+      ],
+      "29- Santuário de Nossa Senhora de Fátima e da Medalha Milagrosa": [
+        "S 01 – Santuário de Nossa Senhora de Fátima e da Medalha Milagrosa", "CP 02 – Casa Paroquial"
+      ],
+      "30- Paróquia Santo Agostinho": [
+        "CE 01 – Santo Agostinho", "CE 02 – Cristo Libertador", "CE 03 – Santa Mônica", 
+        "CE 04 – Nossa Senhora do Carmo", "CE 05 – São Mateus", "CE 06 – São Bernardo", 
+        "CE 07 – Menino Jesus", "CE 08 – Nossa Senhora da Penha", "SP 09 – Secretaria Paroquial", "CP 10 – Casa Paroquial"
+      ],
+      "31- Paróquia São Luís Gonzaga": [
+        "CE 01 – São Luís Gonzaga", "CE 02 – Nossa Senhora das Candeias", "CE 03 – São Sebastião", 
+        "CE 04 – Nossa Senhora Aparecida", "CE 05 – São João Bosco", "CE 06 – São Judas Tadeu", 
+        "CE 07 – Nossa Senhora de Fátima", "CE 08 – Santa Maria do Povo", "CE 09 – Divino Espírito Santo", 
+        "CE 10 – Sagrado Coração de Jesus", "CE 11 – Santo Antônio-Fazendas", "CE 12 – Nossa Senhora Aparecida", 
+        "SP 13 – Secretaria Paroquial", "CP 14 - Casa Paroquial"
+      ],
+      "32- Paróquia São Sebastião": [
+        "CE 01 – São Sebastião", "CE 02 – São José de Anchieta", "CE 03 – Bom Jesus", 
+        "CE 04 – Jesus de Nazaré", "CE 05 – Nossa Senhora Aparecida", "CE 06 – Nossa Senhora das Graças", 
+        "CE 07 – Nossa Senhora do Amparo", "CE 08 – São José Operário", "CE 09 – Santa Teresinha", 
+        "CE 10 – São Francisco de Assis", "CE 11 – Nossa Senhora da União", "CE 12 – São José", 
+        "CE 13 – Santo Oscar Romero", "CE 14 – São Jorge", "CE 15 – São Pedro", 
+        "CE 16 – São João XXIII", "CE 17 – São João Evangelista", "CE 18 – Santa Luzia", 
+        "SP 19 – Secretaria Paroquial", "CP 20 – Casa Paroquial"
+      ],
+      "33- Paróquia Santo Antônio": [
+        "CE 01 – Santo Antônio", "CE 02 – Nossa Senhora do Loreto", "CE 03 - Cristo", 
+        "CE 04 – São João Batista", "CE 05 – Santa Cruz", "CE 06 – Nossa Senhora de Guadalupe", 
+        "CE 07 – Santa Rita", "CE 08 – São João Paulo II", "CE 09 – Sagrada Família", 
+        "SP 10 – Secretaria Paroquial", "CP 11 – Casa Paroquial"
+      ],
+      "34- Paróquia Santa Cecília": [
+        "CE 01 – Santa Cecília", "CE 02 – Nossa Senhora Aparecida", "CE 03 – São Geraldo", 
+        "CE 04 – São José Operário", "SP 05 – Secretaria Paroquial", "CP 06 – Casa Paroquial"
+      ]
+    }
+  };
+
+  // Funções para popular os SELECTs dinamicamente
+  function carregarParoquias() {
+    const vicariato = document.getElementById('vicariato').value;
+    const paroquiaSelect = document.getElementById('paroquia');
+    const comunidadeSelect = document.getElementById('comunidade');
+
+    paroquiaSelect.innerHTML = '<option value="">-- Selecione a Paróquia --</option>';
+    comunidadeSelect.innerHTML = '<option value="">-- Selecione primeiro a Paróquia --</option>';
+
+    if (vicariato && dadosDiocese[vicariato]) {
+      Object.keys(dadosDiocese[vicariato]).forEach(paroquia => {
+        const option = document.createElement('option');
+        option.value = paroquia;
+        option.textContent = paroquia;
+        paroquiaSelect.appendChild(option);
+      });
+    }
+  }
+
+  function carregarComunidades() {
+    const vicariato = document.getElementById('vicariato').value;
+    const paroquia = document.getElementById('paroquia').value;
+    const comunidadeSelect = document.getElementById('comunidade');
+
+    comunidadeSelect.innerHTML = '<option value="">-- Selecione a Comunidade --</option>';
+
+    if (vicariato && paroquia && dadosDiocese[vicariato][paroquia]) {
+      dadosDiocese[vicariato][paroquia].forEach(comunidade => {
+        const option = document.createElement('option');
+        option.value = comunidade;
+        option.textContent = comunidade;
+        comunidadeSelect.appendChild(option);
+      });
+    }
+  }
+
+  // Preview de Imagens
+  function previewImg(input, imgId) {
+    const img = document.getElementById(imgId);
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        img.src = e.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Preenche a data do cadastro automaticamente com a data atual
+  document.getElementById('data_cadastro').value = new Date().toLocaleDateString('pt-BR');
+
+  // Lógica do Alternador de Temas (Claro / Escuro)
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+
+    const savedTheme = localStorage.getItem('theme') || 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+    if (savedTheme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      if (themeIcon) themeIcon.textContent = '☀️';
+      if (themeText) themeText.textContent = 'Modo Claro';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      if (themeIcon) themeIcon.textContent = '🌙';
+      if (themeText) themeText.textContent = 'Modo Escuro';
+    }
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme = 'light';
+
+        if (currentTheme !== 'dark') {
+          newTheme = 'dark';
+          if (themeIcon) themeIcon.textContent = '☀️';
+          if (themeText) themeText.textContent = 'Modo Claro';
+        } else {
+          if (themeIcon) themeIcon.textContent = '🌙';
+          if (themeText) themeText.textContent = 'Modo Escuro';
+        }
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
